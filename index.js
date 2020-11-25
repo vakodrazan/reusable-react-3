@@ -22,21 +22,19 @@ const App = () => {
 };
 
 const ToggleableForm = ({ options }) => {
-	const currentForm = 0; // Change this to 1 to get the Signup form to show up
-	let focusRef = 0;
+	const [currentForm, setCurrentForm] = useState(0); // Change this to 1 to get the Signup form to show up
+	let focusRef = useRef(null);
 
 	return (
 		<>
 			{options.map((el, index) => {
-				return <ButtonToggle key={`button${index}`}>{el.name}</ButtonToggle>;
+				return <ButtonToggle toggleForm={() => setCurrentForm(index)} index={index} key={`button${index}`} focusRef={focusRef}>{el.name}</ButtonToggle>;
 			})}
-			<FormToggle currentIndex={currentForm}>
+			<FormToggle currentIndex={currentForm} focusRef={focusRef}>
 				{options.map((el, index) => {
 					return (
 						<div key={`form${index}`}>
-							{createElement(el.component, {
-								/* Hmm, what should go here?*/
-							})}
+							{createElement(el.component, { ref: focusRef })}
 						</div>
 					);
 				})}
@@ -45,11 +43,11 @@ const ToggleableForm = ({ options }) => {
 	);
 };
 
-const ButtonToggle = ({ children, toggleRef, toggleForm }) => {
+const ButtonToggle = ({ children, toggleRef, toggleForm, index }) => {
 	return (
 		<button
 			onClick={() => {
-				// Hmm, things should happen here
+				toggleForm()
 			}}
 		>
 			{children}
@@ -59,7 +57,7 @@ const ButtonToggle = ({ children, toggleRef, toggleForm }) => {
 
 const FormToggle = ({ children, currentIndex }) => {
 	if (Array.isArray(children)) {
-		return <div>{children}</div>;
+		return <div>{children[currentIndex]}</div>;
 		// Remember, `children` is an array when there's multiple!
 		// So, if you want to show all the forms, you just put
 		// `children`.
@@ -68,32 +66,40 @@ const FormToggle = ({ children, currentIndex }) => {
 	return null;
 };
 
-const LoginForm = props => {
+const LoginForm = forwardRef((props, ref) => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 
+	useEffect(() => {
+		ref.current.focus();
+	})
+
 	return (
 		<>
-			<input type="text" defaultValue={username} placeholder="Username" />
-			<input type="password" defaultValue={password} placeholder="Password" />
+			<input ref={ref} type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
+			<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
 			<button>Submit</button>
 		</>
 	);
-};
+});
 
-const SignupForm = props => {
+const SignupForm = forwardRef((props, ref) => {
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 
+	useEffect(() => {
+		ref.current.focus();
+	})
+
 	return (
 		<>
-			<input type="email" defaultValue={email} placeholder="Email" />
-			<input type="text" defaultValue={username} placeholder="Username" />
-			<input type="password" defaultValue={password} placeholder="Password" />
+			<input ref={ref} type="email" value={email} placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+			<input type="text" value={username} placeholder="Username" onChange={(e) => setUsername(e.target.value)} />
+			<input type="password" value={password} placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
 			<button>Submit</button>
 		</>
 	);
-};
+});
 
 ReactDOM.render(<App />, document.getElementById('root'));
