@@ -72,7 +72,7 @@ const LoginForm = forwardRef((props, ref) => {
 
 	useEffect(() => {
 		ref.current.focus();
-	})
+	}, [])
 
 	return (
 		<>
@@ -90,7 +90,7 @@ const SignupForm = forwardRef((props, ref) => {
 
 	useEffect(() => {
 		ref.current.focus();
-	})
+	}, [])
 
 	return (
 		<>
